@@ -40,3 +40,12 @@ UPDATING Products:
 REMOVING Products:
 	1. db.products.remove({department: 'Hardware'}, {justOne: true});
 	2. db.products.remove({department: 'Hardware'});
+
+FINDING Products:
+  1. db.products.find({stock: 0},{'name': true, id: 0});
+  2. db.products.find({price: {$lt: 100}}, {'stock':1,'id':0});
+  3. db.products.find({$and: [{price: {$lt: 1000}}, {price: {$gt: 100}}]}, {'name':1,'stock':1,'color':1,'department':1,id:0});
+  4. db.products.find({color: 'red'},{'name':1, id:0});
+  5. db.products.find({$or: [{color:'red'}, {color: 'blue'}]}, {_id:1});
+  6. db.products.find({$and: [{color: {$ne: 'blue'}}, {color: {$ne: 'red'}}]}, {'name':1, id:0});
+  7. db.products.find({$and: [{department: {$ne: 'Sports'}}, {departments: {$ne: 'Games'}}]}, {'name':1, id:0});
