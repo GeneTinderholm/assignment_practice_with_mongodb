@@ -49,3 +49,16 @@ FINDING Products:
   5. db.products.find({$or: [{color:'red'}, {color: 'blue'}]}, {_id:1});
   6. db.products.find({$and: [{color: {$ne: 'blue'}}, {color: {$ne: 'red'}}]}, {'name':1, id:0});
   7. db.products.find({$and: [{department: {$ne: 'Sports'}}, {departments: {$ne: 'Games'}}]}, {'name':1, id:0});
+  8. db.products.find({name: /^f.+s$/i}, {'name': 1, 'price': 1, _id: 0});
+  9. db.products.find({ $where: 'this.name.toString()[0] === "T"' }, {'name':1, _id:0});
+  10. db.products.find({ $where: 'this.name.toString()[0] === "F" || this.name.toString()[this.name.toString().length - 1] === "s"'}, {'name': 1, _id: 0});
+  11. db.products.find({ $where: 'this.name.toString()[0] === "T" && this.price < 100'}, { 'name': 1, _id:0});
+  12. db.products.find({ $where: '(this.name.toString()[0] === "A" && this.price >= 100) || (this.name.toString()[0] === "B" && this.price <= 100)'}, {'name':1, 'price':1, _id: 0});
+ 
+AGGREGATING Products:
+  1. db.products.aggregate( [{$match:{}}, {$group: {_id: '$department', total: {$sum: '$sales'}}}, {$sort: {_id: 1}}] )
+  2. db.products.aggregate( [{$match:{price:{$gte: 100}}}, {$group: {_id: '$department', total: {$sum: '$sales'}}}, {$sort: {_id: 1}}] );
+  3. db.products.aggregate( [{$match:{stock:{$eq: 0}}}, {$group: {_id: '$department', total: {$sum: 1}}}, {$sort: {_id: 1}}] );
+
+MAP-REDUCE Products:
+  1. db.products.mapReduce( function() { emit(this.color, this.color); }, function(keys, values) { return values.length; },{ query: {}, out: 'color'} ).find();
