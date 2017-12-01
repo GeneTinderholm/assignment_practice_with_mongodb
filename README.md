@@ -49,12 +49,12 @@ FINDING Products:
   5. db.products.find({$or: [{color:'red'}, {color: 'blue'}]}, {_id:1});
   6. db.products.find({$and: [{color: {$ne: 'blue'}}, {color: {$ne: 'red'}}]}, {'name':1, id:0});
   7. db.products.find({$and: [{department: {$ne: 'Sports'}}, {departments: {$ne: 'Games'}}]}, {'name':1, id:0});
-  8. db.products.find({name: /^f.+s$/i}, {'name': 1, 'price': 1, _id: 0});
-  9. db.products.find({ $where: 'this.name.toString()[0] === "T"' }, {'name':1, _id:0});
-  10. db.products.find({ $where: 'this.name.toString()[0] === "F" || this.name.toString()[this.name.toString().length - 1] === "s"'}, {'name': 1, _id: 0});
-  11. db.products.find({ $where: 'this.name.toString()[0] === "T" && this.price < 100'}, { 'name': 1, _id:0});
-  12. db.products.find({ $where: '(this.name.toString()[0] === "A" && this.price >= 100) || (this.name.toString()[0] === "B" && this.price <= 100)'}, {'name':1, 'price':1, _id: 0});
- 
+  8. db.products.find({name: /^f.+s$/i}, {'name': 1, 'price': 1, id: 0});
+  9. db.products.find({ $where: 'this.name.toString()[0] === "T"' }, {'name':1, id:0});
+  10. db.products.find({ $where: 'this.name.toString()[0] === "F" || this.name.toString()[this.name.toString().length - 1] === "s"'}, {'name': 1, id: 0});
+  11. db.products.find({ $where: 'this.name.toString()[0] === "T" && this.price < 100'}, { 'name': 1, id:0});
+  12. db.products.find({ $where: '(this.name.toString()[0] === "A" && this.price >= 100) || (this.name.toString()[0] === "B" && this.price <= 100)'}, {'name':1, 'price':1, id: 0});
+
 AGGREGATING Products:
   1. db.products.aggregate( [{$match:{}}, {$group: {_id: '$department', total: {$sum: '$sales'}}}, {$sort: {_id: 1}}] )
   2. db.products.aggregate( [{$match:{price:{$gte: 100}}}, {$group: {_id: '$department', total: {$sum: '$sales'}}}, {$sort: {_id: 1}}] );
@@ -62,3 +62,17 @@ AGGREGATING Products:
 
 MAP-REDUCE Products:
   1. db.products.mapReduce( function() { emit(this.color, this.color); }, function(keys, values) { return values.length; },{ query: {}, out: 'color'} ).find();
+  2. db.products.mapReduce( function() {emit(this.department, this.sales);}, function(keys, values) { return Array.sum(values)}, { query: {}, out: "department_totals"}).find();
+  3. db.products.mapReduce( function() { emit(this.name, this.stock*this.price)}, function(keys, values) { return Array.sum(values)}, { query: {}, 'out': "potential_sales"}).find();
+  4. db.products.mapReduce( function() {emit(this.name, this.sales*this.price+this.stock*this.price)}, function(key, values) {return Array.sum(values)}, {query: {}, 'out': "total & potential revenue"}).find();
+
+SINGLE PURPOSE AGGREGATION
+  1. db.products.count();
+  2. db.products.count({stock: 0});
+  3. db.products.count({stock: 100});
+  4. db.products.count({stock: {$lte: 5}});
+  5. db.products.distinct('department');
+  6. db.products.distinct('color');
+  7. db.products.group({key: {department: 1}, cond: {stock: {$eq: 0}}, reduce: function(cur, result){result.count += 1}, initial: {count: 0}});
+
+MONGO DB RESTAURANTS DATABASE
