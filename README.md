@@ -76,3 +76,7 @@ SINGLE PURPOSE AGGREGATION
   7. db.products.group({key: {department: 1}, cond: {stock: {$eq: 0}}, reduce: function(cur, result){result.count += 1}, initial: {count: 0}});
 
 MONGO DB RESTAURANTS DATABASE
+  1. db.restaurants.find({},{'name':1, _id:0}).limit(5);
+  2. db.restaurants.find({$or: [{'grades.grade': 'A'}, {'grades.grade': 'B'}]},{'name':1, _id:0});
+  3. db.restaurants.find({'grades.score': {$gt: 20}},{'name':1, _id:0});
+  4. db.restaurants.group({key: {cuisine: 1}, cond: {borough: {$eq: 'Bronx'}}, reduce: function(cur, result){result.name=cur.name}, initial: {name: ''}});
